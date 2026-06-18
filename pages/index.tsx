@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
+import { useConfigLoader } from '../../shared'
 
 interface Config {
   recipient: string
@@ -13,21 +14,6 @@ interface Config {
   template: string
   captions: string[]
   closing: string
-}
-
-function useConfigLoader<T>(path: string) {
-  const [config, setConfig] = useState<T | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
-
-  useEffect(() => {
-    fetch(path)
-      .then(r => r.json())
-      .then(data => { setConfig(data); setLoading(false); })
-      .catch(err => { setError(err); setLoading(false); })
-  }, [path])
-
-  return { config, loading, error }
 }
 
 const themeColors: Record<string, { bg: string; text: string; accent: string; card: string }> = {
