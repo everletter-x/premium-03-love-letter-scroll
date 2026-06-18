@@ -394,6 +394,12 @@ export default function Home() {
 
       <MusicPlayer src={config.music} title={config.musicTitle} />
 
+      {/* Pricing Section */}
+      <div className="fixed bottom-20 right-6 z-50 bg-dark-luxury/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg">
+        <p className="text-elegant-white/60 text-xs mb-1">Mulai dari</p>
+        <p className="text-2xl font-bold text-gold-accent">Rp 75K</p>
+      </div>
+
       <a
         href="https://wa.me/6282320114535?text=Halo%2C%20saya%20tertarik%20dengan%20EverLetter!"
         target="_blank"
