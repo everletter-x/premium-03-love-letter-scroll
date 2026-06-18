@@ -2,12 +2,12 @@
   "recipient": "Sena",
   "sender": "Aku",
   "title": "Surat Cinta Untuk Sena",
-  "message": "Setiap kata dalam surat ini lahir dari kedalaman hatiku yang hanya berdetak untukmu. Mungkin aku bukan penyair, tapi cintaku padamu adalah puisi terindah yang pernah kutulis.",
+  "message": "Setiap kata dalam surat ini lahir dari kedalaman hatiku yang hanya berdetak untukmu.",
   "photos": [
-    "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=800",
-    "https://images.unsplash.com/photo-1496440737103-cd596325d314?w=800",
-    "https://images.unsplash.com/photo-1515041219749-89347f83291a?w=800",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800"
+    "https://images.unsplash.com/photo-1496440737103-cd596325d314?w=800&q=80",
+    "https://images.unsplash.com/photo-1515041219749-89347f83291a?w=800&q=80",
+    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=80",
+    "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80"
   ],
   "theme": "pink",
   "music": "",
