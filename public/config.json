@@ -9,5 +9,17 @@
   "musicTitle": "",
   "template": "premium-03",
   "captions": [],
-  "closing": ""
+  "closing": "",
+  "_example": {
+    "recipient": "Kamu",
+    "sender": "Aku",
+    "title": "Surat Cinta Untukmu",
+    "message": "Setiap kata dalam surat ini lahir dari kedalaman hatiku yang hanya berdetak untukmu. Mungkin aku bukan penyair, tapi cintaku padamu adalah puisi terindah yang pernah kutulis.",
+    "captions": [
+      "Bab 1: Pertemuan yang tak terduga",
+      "Bab 2: Cinta yang tumbuh perlahan",
+      "Bab 3: Janji setia selamanya"
+    ],
+    "closing": "Dengan cinta yang tak pernah pudar, untukmu selamanya."
+  }
 }
