@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { useConfigLoader } from '../../shared'
+import { useConfigLoader } from '../shared'
 
 interface Config {
   recipient: string
