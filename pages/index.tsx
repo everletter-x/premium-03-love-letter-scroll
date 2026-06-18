@@ -40,16 +40,19 @@ const themeColors: Record<string, { bg: string; text: string; accent: string; ca
 const fadeUp = {
   hidden: { opacity: 0, y: 60 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
+  reduced: { opacity: 1, y: 0, transition: { duration: 0 } },
 }
 
 const staggerContainer = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.2 } },
+  reduced: {},
 }
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
+  reduced: { opacity: 1, scale: 1, transition: { duration: 0 } },
 }
 
 const letterVariant = {
@@ -61,15 +64,20 @@ const letterVariant = {
   }),
 }
 
-function AnimatedSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function AnimatedSection({ children, className = '', prefersReducedMotion = false }: { children: React.ReactNode; className?: string; prefersReducedMotion?: boolean }) {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: '-100px' })
+
+  const getVariants = () => {
+    if (prefersReducedMotion) return fadeUp.reduced
+    return isInView ? 'visible' : 'hidden'
+  }
 
   return (
     <motion.div
       ref={ref}
       initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
+      animate={isInView ? getVariants() : 'hidden'}
       variants={fadeUp}
       className={className}
     >
@@ -125,7 +133,8 @@ function MusicPlayer({ src, title }: { src: string; title: string }) {
     >
       <button
         onClick={togglePlay}
-        className="flex items-center gap-3 bg-white/90 backdrop-blur-md shadow-lg rounded-full px-4 py-3 hover:bg-white transition-all duration-300 group"
+        className="flex items-center gap-3 bg-white/90 backdrop-blur-md shadow-lg rounded-full px-4 py-3 min-h-[48px] hover:bg-white focus:outline-none focus:ring-2 focus:ring-rose focus:ring-offset-2 transition-all duration-300 group"
+        aria-label={isPlaying ? 'Pause music' : 'Play music'}
       >
         <motion.div
           animate={isPlaying ? { rotate: 360 } : {}}
@@ -156,12 +165,14 @@ function MusicPlayer({ src, title }: { src: string; title: string }) {
 export default function Home() {
   const { config, loading, error } = useConfigLoader<Config>('/config.json')
   const [showContent, setShowContent] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   useEffect(() => {
+    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
     if (config) {
-      setTimeout(() => setShowContent(true), 300)
+      setTimeout(() => setShowContent(true), prefersReducedMotion ? 0 : 300)
     }
-  }, [config])
+  }, [config, prefersReducedMotion])
 
   if (loading) {
     return (
@@ -251,7 +262,7 @@ export default function Home() {
       </section>
 
       <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-2xl text-center">
+        <AnimatedSection className="max-w-2xl text-center" prefersReducedMotion={prefersReducedMotion}>
           <div className="relative">
             <div className="absolute -top-8 -left-4 text-6xl text-gold-accent/20 font-serif">&ldquo;</div>
             <p className="text-lg sm:text-xl leading-relaxed italic text-dark-luxury/80">
@@ -263,7 +274,7 @@ export default function Home() {
       </section>
 
       <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-4xl w-full">
+        <AnimatedSection className="max-w-4xl w-full" prefersReducedMotion={prefersReducedMotion}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {config.photos.map((photo, index) => (
               <motion.div
@@ -295,7 +306,7 @@ export default function Home() {
       </section>
 
       <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-2xl">
+        <AnimatedSection className="max-w-2xl" prefersReducedMotion={prefersReducedMotion}>
           <div className="space-y-12">
             <div className="text-center mb-16">
               <span className="text-gold-accent text-xs tracking-[0.4em] uppercase">Alasan Aku Sayang Kamu</span>
@@ -322,7 +333,7 @@ export default function Home() {
       </section>
 
       <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-3xl text-center">
+        <AnimatedSection className="max-w-3xl text-center" prefersReducedMotion={prefersReducedMotion}>
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -344,7 +355,7 @@ export default function Home() {
       </section>
 
       <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-2xl text-center">
+        <AnimatedSection className="max-w-2xl text-center" prefersReducedMotion={prefersReducedMotion}>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
