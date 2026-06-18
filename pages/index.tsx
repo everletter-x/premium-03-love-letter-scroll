@@ -154,7 +154,7 @@ function MusicPlayer({ src, title }: { src: string; title: string }) {
         </motion.div>
         <div className="text-left hidden sm:block">
           <p className="text-sm font-medium text-dark-luxury">{title}</p>
-          <p className="text-xs text-gray-500">{isPlaying ? 'Now playing' : 'Tap to play'}</p>
+          <p className="text-xs text-gray-500">{isPlaying ? 'Sedang diputar' : 'Ketuk untuk memutar'}</p>
         </div>
       </button>
       <audio ref={audioRef} src={src} preload="metadata" />
@@ -187,7 +187,7 @@ export default function Home() {
             transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             className="w-12 h-12 border-4 border-pink-soft border-t-rose rounded-full mx-auto mb-4"
           />
-          <p className="text-dark-luxury/60">Loading your love letter...</p>
+          <p className="text-dark-luxury/60">Memuat surat cintamu...</p>
         </motion.div>
       </div>
     )
@@ -196,7 +196,7 @@ export default function Home() {
   if (error || !config) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-elegant-white">
-        <p className="text-rose">Failed to load configuration</p>
+        <p className="text-rose">Gagal memuat konfigurasi</p>
       </div>
     )
   }
@@ -291,7 +291,7 @@ export default function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
-                    <p className="text-sm text-dark-luxury/50">Photo {index + 1}</p>
+                    <p className="text-sm text-dark-luxury/50">Foto {index + 1}</p>
                   </div>
                 </div>
                 {config.captions[index] && (
