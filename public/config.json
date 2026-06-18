@@ -1,25 +1,22 @@
 {
-  "recipient": "",
-  "sender": "",
-  "title": "",
-  "message": "",
-  "photos": [],
+  "recipient": "Sena",
+  "sender": "Aku",
+  "title": "Surat Cinta Untuk Sena",
+  "message": "Setiap kata dalam surat ini lahir dari kedalaman hatiku yang hanya berdetak untukmu. Mungkin aku bukan penyair, tapi cintaku padamu adalah puisi terindah yang pernah kutulis.",
+  "photos": [
+    "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=800",
+    "https://images.unsplash.com/photo-1496440737103-cd596325d314?w=800",
+    "https://images.unsplash.com/photo-1515041219749-89347f83291a?w=800",
+    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800"
+  ],
   "theme": "pink",
   "music": "",
   "musicTitle": "",
   "template": "premium-03",
-  "captions": [],
-  "closing": "",
-  "_example": {
-    "recipient": "Kamu",
-    "sender": "Aku",
-    "title": "Surat Cinta Untukmu",
-    "message": "Setiap kata dalam surat ini lahir dari kedalaman hatiku yang hanya berdetak untukmu. Mungkin aku bukan penyair, tapi cintaku padamu adalah puisi terindah yang pernah kutulis.",
-    "captions": [
-      "Bab 1: Pertemuan yang tak terduga",
-      "Bab 2: Cinta yang tumbuh perlahan",
-      "Bab 3: Janji setia selamanya"
-    ],
-    "closing": "Dengan cinta yang tak pernah pudar, untukmu selamanya."
-  }
+  "captions": [
+    "Bab 1: Pertemuan yang tak terduga",
+    "Bab 2: Cinta yang tumbuh perlahan",
+    "Bab 3: Janji setia selamanya"
+  ],
+  "closing": "Dengan cinta yang tak pernah pudar, untukmu selamanya, Sena."
 }
