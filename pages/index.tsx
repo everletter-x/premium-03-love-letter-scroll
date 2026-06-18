@@ -168,7 +168,16 @@ export default function Home() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
 
   useEffect(() => {
-    setPrefersReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReducedMotion(mq.matches)
+    
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
+    mq.addEventListener('change', handler)
+    
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+
+  useEffect(() => {
     if (config) {
       setTimeout(() => setShowContent(true), prefersReducedMotion ? 0 : 300)
     }
