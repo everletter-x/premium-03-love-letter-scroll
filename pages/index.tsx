@@ -266,7 +266,7 @@ export default function Home() {
           
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 2, ease: "easeOut" }}
             className={`text-[10px] uppercase font-semibold mb-8 tracking-[0.5em] ${colors.accent}`}>
-            A Letter For {config.recipient}
+            Surat Untuk {config.recipient}
           </motion.p>
 
           <h1 className="font-serif-premium text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight px-4 max-w-5xl mx-auto">
@@ -355,7 +355,7 @@ export default function Home() {
                     <ParallaxSection speed={0.08} className="w-full md:w-1/2">
                       <div className="aspect-[4/5] relative overflow-hidden rounded-[20px] shadow-2xl border border-white/[0.08] bg-white/[0.02] group cursor-pointer">
                         <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full">
-                          <img src={`/${photo}`} alt="" className="w-full h-full object-cover" loading="lazy" />
+                          <img src={`/${photo}`} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
                         </motion.div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-40" />
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"

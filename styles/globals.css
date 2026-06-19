@@ -19,6 +19,12 @@ body {
   color: #FBFBF9;
 }
 
+:focus-visible {
+  outline: 2px solid rgba(230, 194, 158, 0.8);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 ::-webkit-scrollbar {
   width: 4px;
 }
