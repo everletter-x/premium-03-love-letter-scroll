@@ -2,21 +2,30 @@
   "recipient": "Sena",
   "sender": "Aku",
   "title": "Surat Cinta Untuk Sena",
-  "message": "Setiap kata dalam surat ini lahir dari kedalaman hatiku yang hanya berdetak untukmu.",
+  "message": "Setiap kata dalam surat ini lahir dari kedalaman hatiku yang hanya berdetak untukmu. Biarkan kata-kata ini menjadi jembatan antara perasaanku dan duniamu, agar kau tahu betapa besarnya cinta yang kumiliki untukmu.\n\nAku menulis surat ini di tengah malam, ketika dunia terdiam dan hanya detak jantungku yang menemani. Di saat seperti ini, pikiranku selalu melayang padamu — tentang cara kau tersenyum, tentang caramu memelukku, tentang semua momen yang telah kita bagi bersama.\n\nCinta kita bukan tentang kata-kata besar atau janji-janji megah. Ia tumbuh dalam hal-hal kecil — dalam tawa yang tumpah saat kita bercerita, dalam diam yang nyaman saat kita hanya duduk berdampingan, dalam sentuhan yang mengatakan lebih dari seribu kata.\n\nAku teringat malam pertama kita — langit penuh bintang, tangan kita hampir bersentuhan, dan detak jantungku yang menyalip langkahku. Sejak saat itu, setiap malam menjadi pengingat bahwa di luar sana, ada seseorang yang memikirkanku juga.\n\nDan ketika aku memandang langit malam, setiap bintang mengingatkanku padamu. Karena kaulah bintangku, bimbinganku, dan rumah yang selalu kutuju di antara miliaran pilihan yang tak terbatas ini.\n\nDi sini, di bawah langit yang sama, aku menuliskan ini untukmu. Bukan karena aku harus, tapi karena hatiku tak bisa diam. Setiap kata ini adalah potongan kecil dari rasa syukurku memilikimu dalam hidupku.",
   "photos": [
-    "https://images.unsplash.com/photo-1496440737103-cd596325d314?w=800&q=80",
-    "https://images.unsplash.com/photo-1515041219749-89347f83291a?w=800&q=80",
-    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&q=80",
-    "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800&q=80"
+    "photo-1.jpg",
+    "photo-2.jpg",
+    "photo-3.jpg",
+    "photo-4.jpg"
   ],
   "theme": "pink",
   "music": "music/romantic-piano.mp3",
   "musicTitle": "Romantic Piano",
   "template": "premium-03",
   "captions": [
-    "Bab 1: Pertemuan yang tak terduga",
-    "Bab 2: Cinta yang tumbuh perlahan",
-    "Bab 3: Janji setia selamanya"
+    "Bab 1: Pertemuan yang tak terduga di tengah keramaian",
+    "Bab 2: Cinta yang tumbuh perlahan seperti bunga musim semi",
+    "Bab 3: Janji setia selamanya di bawah langit berbintang"
   ],
-  "closing": "Dengan cinta yang tak pernah pudar, untukmu selamanya, Sena."
+  "closing": "Dengan cinta yang tak pernah pudar, untukmu selamanya, Sena. Surat ini hanyalah sebagian kecil dari apa yang kurasa — kenyataannya, cintaku untukmu tak akan pernah cukup diungkapkan dengan kata-kata.",
+  "reasons": [
+    "Kehadiranmu yang selalu menenangkan jiwaku",
+    "Caramu mencintai aku dengan ketulusan yang tak pernah goyah",
+    "Senyummu yang menjadi cahaya di hari-hari kelabuku",
+    "Keteguhanmu dalam menghadapi setiap badai kehidupan",
+    "Setiap kenangan indah yang telah kita ciptakan bersama",
+    "Caramu memelukku saat dunia terasa terlalu berat",
+    "Tawamu yang mampu menghangatkan hari terdingin sekalipun"
+  ]
 }
