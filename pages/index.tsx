@@ -1,204 +1,241 @@
-import { useState, useEffect, useRef } from 'react'
-import { motion, useInView } from 'framer-motion'
-import { useConfigLoader } from '../shared'
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { motion, useInView, useScroll, useTransform } from 'framer-motion';
+import Head from 'next/head';
+import { useConfigLoader } from '../shared';
 
 interface Config {
-  recipient: string
-  sender: string
-  title: string
-  message: string
-  photos: string[]
-  theme: string
-  music: string
-  musicTitle: string
-  template: string
-  captions: string[]
-  closing: string
+  recipient: string;
+  sender: string;
+  title: string;
+  message: string;
+  photos: string[];
+  theme: string;
+  music: string;
+  musicTitle: string;
+  template: string;
+  captions: string[];
+  closing: string;
+  reasons?: string[];
 }
 
-const themeColors: Record<string, { bg: string; text: string; accent: string; card: string; textMuted: string }> = {
-  pink: { bg: 'bg-pink-soft/10', text: 'text-dark-luxury', accent: 'text-rose', card: 'bg-pink-soft/20', textMuted: 'text-dark-luxury/70' },
-  lavender: { bg: 'bg-lavender/10', text: 'text-dark-luxury', accent: 'text-purple-600', card: 'bg-lavender/20', textMuted: 'text-dark-luxury/70' },
-  warm: { bg: 'bg-warm-white/20', text: 'text-dark-luxury', accent: 'text-gold-accent', card: 'bg-warm-white/30', textMuted: 'text-dark-luxury/70' },
-  dark: { bg: 'bg-deep-black', text: 'text-elegant-white', accent: 'text-gold-accent', card: 'bg-dark-luxury/80', textMuted: 'text-elegant-white/70' },
+const themeColors: Record<string, { bg: string; text: string; accent: string; accentHex: string; card: string; textMuted: string; dropCap: string }> = {
+  warm: { 
+    bg: 'bg-gradient-to-br from-[#12110F] via-[#1E1915] to-[#2B2118]', 
+    text: 'text-[#FBFBF9]',
+    accent: 'text-[#E6C29E]',
+    accentHex: '#E6C29E',
+    card: 'bg-white/[0.06] border-white/[0.12]',
+    textMuted: 'text-[#E6C29E]/75',
+    dropCap: 'text-[#E6C29E]',
+  },
+  pink: { 
+    bg: 'bg-gradient-to-br from-[#0F0811] via-[#1A0B1A] to-[#250E20]', 
+    text: 'text-[#F9F5F6]',
+    accent: 'text-[#F6B3D0]',
+    accentHex: '#F6B3D0',
+    card: 'bg-white/[0.06] border-white/[0.12]',
+    textMuted: 'text-[#F6B3D0]/75',
+    dropCap: 'text-[#F6B3D0]',
+  },
+  lavender: { 
+    bg: 'bg-gradient-to-br from-[#080711] via-[#0D0A1C] to-[#150F2A]', 
+    text: 'text-[#F5F3F7]',
+    accent: 'text-[#C5B3E6]',
+    accentHex: '#C5B3E6',
+    card: 'bg-white/[0.06] border-white/[0.12]',
+    textMuted: 'text-[#C5B3E6]/75',
+    dropCap: 'text-[#C5B3E6]',
+  },
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 60 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: 'easeOut' } },
-  reduced: { opacity: 1, y: 0, transition: { duration: 0 } },
+  hidden: { opacity: 0, y: 60, filter: 'blur(4px)' },
+  visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 1.2, ease: [0.22, 1, 0.36, 1] } },
 }
 
-const staggerContainer = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.2 } },
-  reduced: {},
-}
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: 'easeOut' } },
-  reduced: { opacity: 1, scale: 1, transition: { duration: 0 } },
-}
-
-const letterVariant = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.02, duration: 0.3, ease: 'easeOut' },
-  }),
-}
-
-function AnimatedSection({ children, className = '', prefersReducedMotion = false }: { children: React.ReactNode; className?: string; prefersReducedMotion?: boolean }) {
+function AnimatedSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
-
-  const getVariants = () => {
-    if (prefersReducedMotion) return fadeUp.reduced
-    return isInView ? 'visible' : 'hidden'
-  }
-
+  const isInView = useInView(ref, { once: true, margin: '-12%' })
   return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={isInView ? getVariants() : 'hidden'}
-      variants={fadeUp}
-      className={className}
-    >
+    <motion.div ref={ref} initial="hidden" animate={isInView ? 'visible' : 'hidden'} variants={fadeUp} className={className}>
       {children}
     </motion.div>
   )
 }
 
+/* ── Gold Dust Rising Particles (unique to Eterna) ── */
+function GoldDust({ color }: { color: string }) {
+  const dust = useMemo(() =>
+    [...Array(18)].map((_, i) => ({
+      left: `${(i * 11 + 2) % 100}%`,
+      size: 1 + (i % 4) * 0.5,
+      duration: 5 + (i % 6) * 1.5,
+      delay: (i % 8) * 0.7,
+      drift: -15 + (i % 3) * 10,
+    })), []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {dust.map((d, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            left: d.left,
+            bottom: "-5%",
+            width: d.size,
+            height: d.size,
+            backgroundColor: color,
+            boxShadow: `0 0 ${d.size * 4}px ${color}`,
+          }}
+          animate={{
+            y: ["0vh", "-110vh"],
+            x: [0, d.drift, -d.drift / 2, d.drift * 0.6],
+            opacity: [0, 0.7, 0.4, 0],
+            scale: [0.3, 1, 0.6, 0.2],
+          }}
+          transition={{
+            duration: d.duration,
+            repeat: Infinity,
+            delay: d.delay,
+            ease: "linear",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ── Ambient floating particles ── */
+function AmbientParticles({ color, count = 8 }: { color: string; count?: number }) {
+  const particles = useMemo(() =>
+    [...Array(count)].map((_, i) => ({
+      left: `${(i * 17 + 5) % 100}%`,
+      top: `${(i * 23 + 10) % 100}%`,
+      size: 1 + (i % 3),
+      duration: 4 + (i % 5),
+      delay: (i % 7) * 0.8,
+    })), [count]);
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {particles.map((p, i) => (
+        <motion.div key={i} className="absolute rounded-full"
+          style={{ left: p.left, top: p.top, width: p.size, height: p.size, backgroundColor: color }}
+          animate={{ y: [0, -40, 0], opacity: [0, 0.35, 0], scale: [0.5, 1, 0.5] }}
+          transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: "easeInOut" }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ── 3D Parallax Section ── */
+function ParallaxSection({ children, speed = 0.5, className = "" }: { children: React.ReactNode; speed?: number; className?: string }) {
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], [80 * speed, -80 * speed]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.5, 1], [1.5, 0, -1.5]);
+  return (
+    <motion.div className={className} style={{ y, rotateX, transformPerspective: 1200, transformStyle: "preserve-3d" }}>
+      {children}
+    </motion.div>
+  );
+}
+
+/* ── Typewriter Text ── */
 function TypewriterText({ text, className }: { text: string; className?: string }) {
   const words = text.split(' ')
   return (
-    <motion.div
-      variants={staggerContainer}
-      initial="hidden"
-      animate="visible"
-      className={className}
-    >
+    <div className={className}>
       {words.map((word, i) => (
-        <motion.span
-          key={i}
-          variants={letterVariant}
-          custom={i}
+        <motion.span key={i}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.5 + i * 0.12, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="inline-block mr-[0.3em]"
-        >
-          {word}
-        </motion.span>
+        >{word}</motion.span>
       ))}
-    </motion.div>
+    </div>
   )
 }
 
-function MusicPlayer({ src, title, textColor }: { src: string; title: string; textColor: string }) {
+/* ── Floating Background with parallax ── */
+function FloatingBackground({ accentHex }: { accentHex: string }) {
+  const { scrollYProgress } = useScroll();
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -300]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -150]);
+  return (
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+      <motion.div style={{ y: y1 }} className="absolute top-20 left-[10%] w-64 h-64 rounded-full blur-3xl opacity-5" />
+      <motion.div style={{ y: y2 }} className="absolute top-[40%] right-[10%] w-96 h-96 rounded-full blur-3xl opacity-5" />
+      <motion.div style={{ y: y3 }} className="absolute bottom-20 left-[20%] w-72 h-72 rounded-full blur-3xl opacity-5" />
+    </div>
+  )
+}
+
+/* ── Music Player ── */
+function MusicPlayer({ src, title }: { src: string; title: string }) {
   const [isPlaying, setIsPlaying] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
-
   const togglePlay = () => {
     if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause()
-      } else {
-        audioRef.current.play()
-      }
-      setIsPlaying(prev => !prev)
+      if (isPlaying) audioRef.current.pause()
+      else audioRef.current.play()
+      setIsPlaying(!isPlaying)
     }
   }
-
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 1, duration: 0.5 }}
-      className="fixed bottom-6 left-6 z-50"
-    >
-      <button
-        onClick={togglePlay}
-        className="flex items-center gap-3 bg-white/90 backdrop-blur-md shadow-lg rounded-full px-4 py-3 min-h-[48px] hover:bg-white focus:outline-none focus:ring-2 focus:ring-rose focus:ring-offset-2 transition-all duration-300 group"
+    <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 2, duration: 1, type: "spring" }} className="fixed bottom-8 right-8 z-50">
+      <button onClick={togglePlay}
+        className="w-14 h-14 bg-white/[0.08] backdrop-blur-xl shadow-glass-lg rounded-full flex items-center justify-center border border-white/[0.12] text-white cursor-pointer"
         aria-label={isPlaying ? 'Pause music' : 'Play music'}
       >
-        <motion.div
-          animate={isPlaying ? { rotate: 360 } : {}}
-          transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-          className="w-10 h-10 bg-rose rounded-full flex items-center justify-center shadow-md"
-        >
-          {isPlaying ? (
-            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <rect x="6" y="4" width="4" height="16" />
-              <rect x="14" y="4" width="4" height="16" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-              <polygon points="5,3 19,12 5,21" />
-            </svg>
-          )}
-        </motion.div>
-        <div className="text-left hidden sm:block">
-          <p className={`text-sm font-medium ${textColor}`}>{title}</p>
-          <p className="text-xs text-gray-500">{isPlaying ? 'Sedang diputar' : 'Ketuk untuk memutar'}</p>
-        </div>
+        {isPlaying ? (
+          <div className="flex gap-[3px] items-center justify-center h-4">
+            <motion.div animate={{ height: [8, 16, 8] }} transition={{ duration: 1, repeat: Infinity }} className="w-[3px] bg-white rounded-full" />
+            <motion.div animate={{ height: [12, 6, 12] }} transition={{ duration: 0.8, repeat: Infinity }} className="w-[3px] bg-white rounded-full" />
+            <motion.div animate={{ height: [6, 14, 6] }} transition={{ duration: 1.2, repeat: Infinity }} className="w-[3px] bg-white rounded-full" />
+          </div>
+        ) : (
+          <svg className="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+        )}
       </button>
-      <audio ref={audioRef} src={src} preload="metadata" />
+      {title && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 2.5 }}
+          className="absolute bottom-full right-0 mb-3 whitespace-nowrap">
+          <span className="text-[10px] tracking-wider text-white/30 uppercase bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/[0.06]">{title}</span>
+        </motion.div>
+      )}
+      <audio ref={audioRef} src={src} preload="metadata" loop />
     </motion.div>
   )
 }
 
 export default function Home() {
   const { config, loading, error } = useConfigLoader<Config>('/config.json')
-  const [showContent, setShowContent] = useState(false)
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
-  const [toast, setToast] = useState<string | null>(null)
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    setPrefersReducedMotion(mq.matches)
-    
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches)
-    mq.addEventListener('change', handler)
-    
-    return () => {
-      mq.removeEventListener('change', handler)
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
-    }
-  }, [])
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>
-    if (config) {
-      timeout = setTimeout(() => setShowContent(true), prefersReducedMotion ? 0 : 300)
-    }
-    return () => clearTimeout(timeout)
-  }, [config, prefersReducedMotion])
-
-  if (loading) {
+  if (loading || !config) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-elegant-white">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center"
-        >
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="w-12 h-12 border-4 border-pink-soft border-t-rose rounded-full mx-auto mb-4"
-          />
-          <p className="text-dark-luxury/60">Memuat surat cintamu...</p>
-        </motion.div>
+      <div className="min-h-screen flex items-center justify-center bg-[#080711]">
+        <div className="text-center">
+          <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            className="w-10 h-10 border border-white/10 rounded-full mx-auto mb-4">
+            <div className="w-full h-full border-t border-[#E6C29E]/50 rounded-full" />
+          </motion.div>
+        </div>
       </div>
     )
   }
 
-  if (error || !config) {
+  if (!config) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-elegant-white">
-        <p className="text-rose">Gagal memuat konfigurasi</p>
+      <div className="min-h-screen flex items-center justify-center bg-[#080711]">
+        <div className="text-center">
+          <p className="text-white/60 mb-4 font-display-premium">Gagal memuat konfigurasi</p>
+          <button onClick={() => window.location.reload()}
+            className="px-4 py-2 bg-white/10 text-white/80 rounded-full hover:bg-white/20 transition-colors border border-white/10 cursor-pointer">Coba Lagi</button>
+        </div>
       </div>
     )
   }
@@ -210,227 +247,229 @@ export default function Home() {
   const lastParagraph = paragraphs[paragraphs.length - 1] || ''
 
   return (
-    <div className={`min-h-screen ${colors.bg} ${colors.text} transition-colors duration-1000`}>
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={showContent ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 1, ease: 'easeOut' }}
-          className="max-w-2xl"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={showContent ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-6"
-          >
-            <span className="text-gold-accent text-sm tracking-[0.3em] uppercase font-medium">
-              Untuk {config.recipient}
-            </span>
-          </motion.div>
-
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 leading-tight">
-            <TypewriterText text={config.title} className={colors.accent} />
-          </h1>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={showContent ? { opacity: 1 } : {}}
-            transition={{ delay: 1.5, duration: 1 }}
-            className="w-16 h-[2px] bg-gold-accent mx-auto mb-8"
-          />
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={showContent ? { opacity: 0.6 } : {}}
-            transition={{ delay: 2, duration: 1 }}
-            className="text-sm tracking-widest uppercase"
-          >
-            Scroll ke bawah untuk membuka
+    <>
+      <Head>
+        <title>{config.title} - EverLetter</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+      </Head>
+      <div className={`min-h-screen ${colors.bg} ${colors.text} font-sans selection:bg-white/20 relative`}>
+        <FloatingBackground accentHex={colors.accentHex} />
+        
+        {/* ═══ Intro Hero ═══ */}
+        <section className="min-h-[110vh] flex flex-col items-center justify-center px-6 text-center relative z-10">
+          <GoldDust color={colors.accentHex} />
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "80px" }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="w-[1px] mb-12" style={{ background: `linear-gradient(180deg, transparent, ${colors.accentHex}30)` }} />
+          
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 2, ease: "easeOut" }}
+            className={`text-[10px] uppercase font-semibold mb-8 tracking-[0.5em] ${colors.accent}`}>
+            A Letter For {config.recipient}
           </motion.p>
 
-          <motion.div
-            animate={showContent ? { y: [0, 10, 0] } : {}}
-            transition={{ delay: 2.5, duration: 2, repeat: Infinity }}
-            className="mt-4"
-          >
-            <svg className="w-6 h-6 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-            </svg>
+          <h1 className="font-serif-premium text-4xl md:text-6xl lg:text-7xl font-light mb-12 leading-tight px-4 max-w-5xl mx-auto">
+            <TypewriterText text={config.title} />
+          </h1>
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 3, duration: 1 }}
+            className="flex flex-col items-center gap-4 mt-12">
+            <p className="text-[10px] tracking-[0.3em] uppercase text-white/25">Mulai Membaca</p>
+            <motion.div animate={{ y: [0, 8, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+              <div className="w-[1px] h-12" style={{ background: `linear-gradient(180deg, ${colors.accentHex}30, transparent)` }} />
+            </motion.div>
           </motion.div>
-        </motion.div>
-      </section>
+        </section>
 
-      <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-2xl text-center" prefersReducedMotion={prefersReducedMotion}>
-          <div className="relative">
-            <div className="absolute -top-8 -left-4 text-6xl text-gold-accent/20 font-serif">&ldquo;</div>
-            <p className={`text-lg sm:text-xl leading-relaxed italic ${colors.textMuted}`}>
-              {firstParagraph}
-            </p>
-            <div className="absolute -bottom-8 -right-4 text-6xl text-gold-accent/20 font-serif">&rdquo;</div>
-          </div>
-        </AnimatedSection>
-      </section>
-
-      <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-4xl w-full" prefersReducedMotion={prefersReducedMotion}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {config.photos.map((photo, index) => (
-              <motion.div
-                key={index}
-                variants={scaleIn}
-                className={`relative overflow-hidden rounded-2xl shadow-lg ${
-                  index === 0 ? 'sm:col-span-2 lg:col-span-1' : ''
-                }`}
-              >
-                <div className="aspect-[4/5] bg-gradient-to-br from-pink-soft/30 to-lavender/30 flex items-center justify-center">
-                  <div className="text-center p-6">
-                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-white/50 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-rose/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <p className={`text-sm ${colors.textMuted}`}>Foto {index + 1}</p>
-                  </div>
+        {/* ═══ First Letter with Drop Cap ═══ */}
+        <section className="min-h-screen flex items-center justify-center px-6 py-32 relative z-10">
+          <GoldDust color={colors.accentHex} />
+          <ParallaxSection speed={0.12} className="max-w-3xl mx-auto w-full">
+            <AnimatedSection>
+              <div className={`relative p-8 md:p-16 ${colors.card} border backdrop-blur-[32px] rounded-[24px] shadow-glass-lg`}>
+                <div className="flex gap-1.5 mb-8 opacity-25">
+                  <div className="w-2 h-2 rounded-full bg-white" /><div className="w-2 h-2 rounded-full bg-white" /><div className="w-2 h-2 rounded-full bg-white" />
                 </div>
-                {config.captions[index] && (
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-                    <p className="text-white text-sm font-medium">{config.captions[index]}</p>
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        </AnimatedSection>
-      </section>
-
-      <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-2xl" prefersReducedMotion={prefersReducedMotion}>
-          <div className="space-y-12">
-            <div className="text-center mb-16">
-              <span className="text-gold-accent text-xs tracking-[0.4em] uppercase">Alasan Aku Sayang Kamu</span>
-            </div>
-            {middleParagraphs.map((paragraph, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: index % 2 === 0 ? -40 : 40 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-100px' }}
-                transition={{ duration: 0.8, delay: index * 0.15 }}
-                className={`${colors.card} backdrop-blur-sm rounded-3xl p-8 shadow-sm`}
-              >
-                <div className="flex items-start gap-4">
-                  <span className={`text-3xl font-bold ${colors.accent} opacity-30`}>
-                    {String(index + 1).padStart(2, '0')}
+                <p className="font-display-premium text-xl md:text-2xl leading-[1.9] font-light text-white/85">
+                  <span className="float-left text-7xl md:text-8xl font-serif-premium leading-[0.8] mr-4 mt-2" style={{ color: colors.accentHex }}>
+                    {firstParagraph.charAt(0)}
                   </span>
-                  <p className="text-base sm:text-lg leading-relaxed flex-1">{paragraph}</p>
-                </div>
+                  {firstParagraph.substring(1)}
+                </p>
+              </div>
+            </AnimatedSection>
+          </ParallaxSection>
+        </section>
+
+        {/* ═══ Emotional Depth Section ═══ */}
+        <section className="min-h-screen py-32 px-6 relative z-10">
+          <GoldDust color={colors.accentHex} />
+          <ParallaxSection speed={0.1} className="max-w-2xl mx-auto">
+            <AnimatedSection className="mb-16 text-center">
+              <p className={`text-[10px] tracking-[0.5em] uppercase mb-4 font-semibold ${colors.accent}`}>
+                Perasaanku
+              </p>
+              <h2 className="font-serif-premium text-3xl md:text-4xl font-light text-white tracking-wide">
+                Tentang Waktu
+              </h2>
+              <div className="w-16 h-[1px] mx-auto mt-6" style={{ background: `linear-gradient(90deg, transparent, ${colors.accentHex}40, transparent)` }} />
+            </AnimatedSection>
+
+            <div className="space-y-12">
+              {[
+                "Waktu mengajarkanku bahwa cinta sejati bukan tentang kilatan momen yang dramatis, tapi tentang ketekunan dalam hal-hal kecil yang kita lakukan setiap hari. Ia tentang bagaimana kita bangun di pagi hari dan memilih satu sama lain, lagi dan lagi, tanpa keraguan.",
+                "Ada keindahan dalam kebersamaan yang tak terucap. Dalam diam yang nyaman, dalam tawa yang tumpah tanpa perlu alasan, dalam sentuhan yang mengatakan \"aku di sini\" tanpa perlu kata-kata. Kita telah membangun dunia kita sendiri — dunia di mana waktu berhenti saat kita bersama.",
+                "Aku merenungkan tentang bagaimana kita telah melewati badai bersama — bukan tanpa luka, bukan tanpa air mata, tapi selalu dengan tangan yang tergenggam erat. Kita belajar bahwa cinta bukan tentang tidak pernah jatuh, tapi tentang selalu bangun bersama.",
+                "Dan ketika aku melihat ke belakang, aku tidak menyesali satu momen pun. Setiap tawa, setiap tangis, setiap pertengkaran kecil yang berakhir dengan pelukan — semuanya telah membawa kita ke sini, ke tempat yang lebih indah dari yang pernah kubayangkan.",
+              ].map((text, i) => (
+                <AnimatedSection key={i}>
+                  <p className="font-display-premium text-lg md:text-xl text-white/75 leading-[2] font-light">
+                    {text}
+                  </p>
+                  {i < 3 && (
+                    <div className="flex justify-center mt-10">
+                      <div className="w-1.5 h-1.5 rotate-45 border border-white/10" />
+                    </div>
+                  )}
+                </AnimatedSection>
+              ))}
+            </div>
+          </ParallaxSection>
+        </section>
+
+        {/* ═══ Photo Gallery - Offset Cinematic Grid ═══ */}
+        {config.photos?.length > 0 && (
+          <section className="py-32 px-6 relative z-10">
+            <GoldDust color={colors.accentHex} />
+            <div className="max-w-6xl mx-auto">
+              <AnimatedSection className="mb-24 text-center">
+                <p className={`text-[10px] tracking-[0.5em] uppercase mb-4 font-semibold ${colors.accent}`}>Gallery</p>
+                <h2 className="font-serif-premium text-3xl font-light tracking-wide">Kenangan Bersama</h2>
+                <div className="w-16 h-[1px] mx-auto mt-6" style={{ background: `linear-gradient(90deg, transparent, ${colors.accentHex}30, transparent)` }} />
+              </AnimatedSection>
+              
+              <div className="flex flex-col gap-32">
+                {config.photos.map((photo, i) => (
+                  <AnimatedSection key={i} className={`flex flex-col ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12`}>
+                    <ParallaxSection speed={0.08} className="w-full md:w-1/2">
+                      <div className="aspect-[4/5] relative overflow-hidden rounded-[20px] shadow-2xl border border-white/[0.08] bg-white/[0.02] group cursor-pointer">
+                        <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full">
+                          <img src={`/${photo}`} alt="" className="w-full h-full object-cover" loading="lazy" />
+                        </motion.div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-40" />
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+                          style={{ background: `radial-gradient(circle at 50% 50%, ${colors.accentHex}15, transparent 70%)` }}
+                        />
+                      </div>
+                    </ParallaxSection>
+                    {config.captions?.[i] && (
+                      <div className="w-full md:w-1/2 flex items-center justify-center p-8">
+                        <p className="font-display-premium text-xl md:text-2xl font-light italic text-center leading-[1.8] text-white/75">&ldquo;{config.captions[i]}&rdquo;</p>
+                      </div>
+                    )}
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ═══ Reasons Section ═══ */}
+        {config.reasons && config.reasons.length > 0 && (
+          <section className="py-32 px-6 relative z-10">
+            <GoldDust color={colors.accentHex} />
+            <ParallaxSection speed={0.1} className="max-w-4xl mx-auto">
+              <AnimatedSection className="text-center mb-16">
+                <p className={`text-[10px] tracking-[0.5em] uppercase mb-4 font-semibold ${colors.accent}`}>Alasan</p>
+                <h2 className="font-serif-premium text-3xl md:text-4xl font-light text-white tracking-wide">Mengapa Kau Spesial</h2>
+                <div className="w-16 h-[1px] mx-auto mt-6" style={{ background: `linear-gradient(90deg, transparent, ${colors.accentHex}40, transparent)` }} />
+              </AnimatedSection>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {config.reasons.map((reason, i) => (
+                  <AnimatedSection key={i}>
+                    <motion.div
+                      className={`p-8 ${colors.card} border rounded-[20px] backdrop-blur-[32px] shadow-glass-lg relative overflow-hidden`}
+                      whileHover={{ y: -4, transition: { duration: 0.3 } }}
+                    >
+                      <div className="absolute top-0 right-0 w-24 h-24 opacity-5 pointer-events-none" style={{ background: `radial-gradient(circle at top right, ${colors.accentHex}, transparent)` }} />
+                      <span className="font-serif-premium text-4xl font-bold block mb-4" style={{ color: `${colors.accentHex}30` }}>
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <p className="font-display-premium text-base md:text-lg text-white/80 leading-relaxed font-light">{reason}</p>
+                    </motion.div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </ParallaxSection>
+          </section>
+        )}
+
+        {/* ═══ Middle Body Sections ═══ */}
+        {middleParagraphs.length > 0 && (
+          <section className="py-32 px-6 relative z-10">
+            <GoldDust color={colors.accentHex} />
+            <div className="max-w-2xl mx-auto space-y-32">
+              {middleParagraphs.map((para, i) => (
+                <ParallaxSection key={i} speed={0.08}>
+                  <AnimatedSection>
+                    <div className={`p-10 md:p-16 ${colors.card} backdrop-blur-[24px] border rounded-2xl shadow-glass-lg relative`}>
+                      <span className={`absolute -top-6 left-10 text-5xl font-mono ${colors.dropCap} font-bold opacity-25`}>
+                        {(i + 1).toString().padStart(2, '0')}
+                      </span>
+                      <p className="font-display-premium text-lg md:text-xl leading-[1.9] font-light">{para}</p>
+                    </div>
+                  </AnimatedSection>
+                </ParallaxSection>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ═══ Last Paragraph with Cinematic Emphasis ═══ */}
+        <section className="min-h-screen flex items-center justify-center px-6 py-32 relative z-10">
+          <GoldDust color={colors.accentHex} />
+          <ParallaxSection speed={0.1}>
+            <AnimatedSection className="max-w-4xl text-center">
+              <p className={`font-serif-premium text-2xl md:text-4xl italic leading-snug ${colors.accent}`}>{lastParagraph}</p>
+              <div className="w-16 h-[2px] mx-auto mt-16" style={{ background: `linear-gradient(90deg, transparent, ${colors.accentHex}30, transparent)` }} />
+            </AnimatedSection>
+          </ParallaxSection>
+        </section>
+
+        {/* ═══ Closing Signature ═══ */}
+        <section className="min-h-screen flex flex-col items-center justify-center px-6 py-32 relative z-10 text-center">
+          <GoldDust color={colors.accentHex} />
+          <ParallaxSection speed={0.08}>
+            <AnimatedSection>
+              <motion.div
+                className="w-16 h-16 mx-auto mb-12 flex items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.04] backdrop-blur-xl"
+                initial={{ scale: 0, opacity: 0 }}
+                whileInView={{ scale: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.2 }}
+              >
+                <motion.svg
+                  className="w-6 h-6"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: colors.accentHex }}
+                  animate={{ scale: [1, 1.15, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                </motion.svg>
               </motion.div>
-            ))}
-          </div>
-        </AnimatedSection>
-      </section>
+              <p className={`font-display-premium text-xl md:text-2xl font-light mb-16 text-white/75`}>{config.closing}</p>
+              <div className="w-8 h-[1px] mx-auto mb-6" style={{ background: `linear-gradient(90deg, transparent, ${colors.accentHex}30, transparent)` }} />
+              <p className={`text-[10px] tracking-[0.4em] uppercase mb-6 text-white/25`}>Yours Truly,</p>
+              <p className="font-serif-premium text-3xl md:text-5xl font-light">{config.sender}</p>
+            </AnimatedSection>
+          </ParallaxSection>
+        </section>
 
-      <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-3xl text-center" prefersReducedMotion={prefersReducedMotion}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-          >
-            <div className="relative inline-block mb-8">
-              <div className="absolute inset-0 bg-gold-accent/10 rounded-full blur-3xl" />
-              <svg className="w-16 h-16 mx-auto relative text-gold-accent" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-            </div>
-            <p className={`text-2xl sm:text-3xl md:text-4xl font-light leading-relaxed italic ${colors.textMuted}`}>
-              {lastParagraph}
-            </p>
-            <div className="mt-8 w-12 h-[1px] bg-gold-accent mx-auto" />
-          </motion.div>
-        </AnimatedSection>
-      </section>
-
-      <section className="min-h-screen flex items-center justify-center px-6 py-20">
-        <AnimatedSection className="max-w-2xl text-center" prefersReducedMotion={prefersReducedMotion}>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1 }}
-            className="space-y-8"
-          >
-            <div className="w-24 h-[1px] bg-gold-accent/40 mx-auto" />
-
-            <p className={`text-xl sm:text-2xl leading-relaxed ${colors.textMuted}`}>
-              {config.closing}
-            </p>
-
-            <div className="pt-8">
-              <p className={`text-sm ${colors.textMuted} tracking-widest uppercase mb-2`}>Dengan penuh cinta</p>
-              <p className="text-3xl sm:text-4xl font-bold text-rose">{config.sender}</p>
-            </div>
-
-            <div className="pt-12">
-              <svg className="w-8 h-8 mx-auto text-gold-accent/40" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-              </svg>
-            </div>
-          </motion.div>
-        </AnimatedSection>
-      </section>
-
-      <MusicPlayer src={config.music} title={config.musicTitle} textColor={colors.text} />
-
-      <a
-        href="https://wa.me/6282320114535?text=Halo%2C%20saya%20tertarik%20dengan%20EverLetter!"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-20 right-6 z-50 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-green-600 transition-colors flex items-center gap-2 font-medium"
-      >
-        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-        Pesan Sekarang
-      </a>
-
-      {toast && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          className="fixed bottom-20 left-6 z-50 bg-dark-luxury/90 text-elegant-white px-4 py-3 rounded-xl shadow-lg text-sm"
-        >
-          {toast}
-        </motion.div>
-      )}
-
-      {/* Share Button */}
-      <button
-        onClick={() => {
-          if (navigator.share) {
-            navigator.share({
-              title: 'EverLetter - Eterna',
-              text: 'Lihat hadiah digital indah ini!',
-              url: window.location.href,
-            });
-          } else {
-            navigator.clipboard.writeText(window.location.href);
-            setToast('Link disalin ke clipboard!');
-            if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-            toastTimeoutRef.current = setTimeout(() => setToast(null), 3000);
-          }
-        }}
-        className={`fixed bottom-6 left-6 z-50 bg-dark-luxury/20 backdrop-blur-sm ${colors.text} px-4 py-3 rounded-full shadow-lg hover:bg-dark-luxury/30 transition-colors flex items-center gap-2`}
-        aria-label="Bagikan"
-      >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-        </svg>
-      </button>
-    </div>
+        {config.music && <MusicPlayer src={`/${config.music}`} title={config.musicTitle} />}
+      </div>
+    </>
   )
 }
