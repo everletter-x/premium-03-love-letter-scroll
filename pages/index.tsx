@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import Head from 'next/head';
 import { useConfigLoader } from '../shared';
+import { RippleEffect } from '../components/RippleEffect';
 
 interface Config {
   recipient: string;
@@ -141,18 +142,112 @@ function ParallaxSection({ children, speed = 0.5, className = "" }: { children: 
   );
 }
 
-/* ── Typewriter Text ── */
-function TypewriterText({ text, className }: { text: string; className?: string }) {
-  const words = text.split(' ')
+/* ── Wax Seal Unsealing Animation ── */
+function WaxSeal({ accentHex }: { accentHex: string }) {
+  const [sealed, setSealed] = useState(true);
+
+  return (
+    <motion.div
+      className="relative mx-auto mb-10 w-20 h-20 cursor-pointer"
+      whileInView={{ scale: 1 }}
+      viewport={{ once: true, margin: "-10%" }}
+      onViewportEnter={() => {
+        setTimeout(() => setSealed(false), 600);
+      }}
+    >
+      {/* Wax seal circle */}
+      <motion.div
+        className="absolute inset-0 rounded-full"
+        style={{
+          background: `radial-gradient(circle at 35% 35%, #c0392b, #922b21)`,
+          boxShadow: "0 4px 20px rgba(192, 57, 43, 0.3)",
+        }}
+        animate={sealed ? {
+          scale: [1, 1.05, 1],
+          boxShadow: [
+            "0 4px 20px rgba(192, 57, 43, 0.3)",
+            "0 4px 30px rgba(192, 57, 43, 0.5)",
+            "0 4px 20px rgba(192, 57, 43, 0.3)",
+          ],
+        } : {
+          scale: 0,
+          opacity: 0,
+          rotate: [0, 15, -10, 0],
+        }}
+        transition={sealed ? {
+          duration: 2, repeat: Infinity, ease: "easeInOut",
+        } : {
+          duration: 0.8, ease: [0.22, 1, 0.36, 1],
+        }}
+      >
+        {/* "E" emblem */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-white/70 text-xl font-serif font-bold" style={{ fontFamily: "Playfair Display" }}>E</span>
+        </div>
+        {/* Wax drip detail */}
+        <motion.div
+          className="absolute -bottom-2 left-4 w-3 h-3 rounded-b-full"
+          style={{ backgroundColor: "#c0392b" }}
+          animate={sealed ? { y: [0, 2, 0] } : { y: 10, opacity: 0 }}
+          transition={{ duration: 2, repeat: sealed ? Infinity : 0 }}
+        />
+        <motion.div
+          className="absolute -bottom-1 right-6 w-2 h-2 rounded-b-full"
+          style={{ backgroundColor: "#922b21" }}
+          animate={sealed ? { y: [0, 1.5, 0] } : { y: 8, opacity: 0 }}
+          transition={{ duration: 2.5, repeat: sealed ? Infinity : 0 }}
+        />
+      </motion.div>
+      {/* Cracked pieces scatter */}
+      {!sealed && [...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute rounded-full"
+          style={{
+            width: 4 + (i % 3) * 2,
+            height: 4 + (i % 3) * 2,
+            backgroundColor: "#c0392b",
+            top: "50%",
+            left: "50%",
+          }}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 1 }}
+          animate={{
+            x: Math.cos(i * 60 * Math.PI / 180) * (40 + i * 10),
+            y: Math.sin(i * 60 * Math.PI / 180) * (40 + i * 10),
+            opacity: 0,
+            scale: 0.3,
+            rotate: 360,
+          }}
+          transition={{ duration: 1, ease: "easeOut" }}
+        />
+      ))}
+      {/* Golden glow on unseal */}
+      {!sealed && (
+        <motion.div
+          className="absolute inset-[-50%] rounded-full"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ opacity: [0, 0.3, 0], scale: [0, 2, 3] }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          style={{ background: `radial-gradient(circle, ${accentHex}, transparent)` }}
+        />
+      )}
+    </motion.div>
+  );
+}
+
+/* ── Character-by-Character Typewriter ── */
+function TypewriterText({ text, className, startDelay = 1.5 }: { text: string; className?: string; startDelay?: number }) {
+  const chars = text.split('');
   return (
     <div className={className}>
-      {words.map((word, i) => (
-        <motion.span key={i}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5 + i * 0.12, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="inline-block mr-[0.3em]"
-        >{word}</motion.span>
+      {chars.map((char, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: startDelay + i * 0.04, duration: 0.1, ease: "easeOut" }}
+          className="inline"
+        >{char}</motion.span>
       ))}
     </div>
   )
@@ -255,6 +350,7 @@ export default function Home() {
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&display=swap" rel="stylesheet" />
       </Head>
       <div className={`min-h-screen ${colors.bg} ${colors.text} font-sans selection:bg-white/20 relative`}>
+        <RippleEffect color={`${colors.accentHex}15`} />
         <FloatingBackground accentHex={colors.accentHex} />
         
         {/* ═══ Intro Hero ═══ */}
@@ -288,6 +384,7 @@ export default function Home() {
           <ParallaxSection speed={0.12} className="max-w-3xl mx-auto w-full">
             <AnimatedSection>
               <div className={`relative p-8 md:p-16 ${colors.card} border backdrop-blur-[32px] rounded-[24px] shadow-glass-lg`}>
+                <WaxSeal accentHex={colors.accentHex} />
                 <div className="flex gap-1.5 mb-8 opacity-25">
                   <div className="w-2 h-2 rounded-full bg-white" /><div className="w-2 h-2 rounded-full bg-white" /><div className="w-2 h-2 rounded-full bg-white" />
                 </div>
@@ -355,7 +452,14 @@ export default function Home() {
                     <ParallaxSection speed={0.08} className="w-full md:w-1/2">
                       <div className="aspect-[4/5] relative overflow-hidden rounded-[20px] shadow-2xl border border-white/[0.08] bg-white/[0.02] group cursor-pointer">
                         <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full">
-                          <img src={`/${photo}`} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                          <motion.div
+                            animate={{ scale: [1, 1.08, 1] }}
+                            transition={{ duration: 12 + i * 2, repeat: Infinity, ease: 'easeInOut' }}
+                            className="w-full h-full"
+                            style={{ willChange: 'transform' }}
+                          >
+                            <img src={`/${photo}`} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+                          </motion.div>
                         </motion.div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-40" />
                         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
